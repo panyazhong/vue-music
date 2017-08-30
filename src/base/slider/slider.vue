@@ -1,6 +1,6 @@
 <template>
-  <div class="slider">
-    <div class="slider-group">
+  <div class="slider" ref="slider">
+    <div class="slider-group" ref="sliderGroup">
       <slot></slot>
     </div>
     <div class="dots"></div>
@@ -8,6 +8,9 @@
 </template>
 
 <script type="text/ecmascript-6">
+  import BScroll from 'better-scroll'
+  import {addClass} from 'common/js/dom'
+
   export default {
     props: {
       loop: {
@@ -21,6 +24,41 @@
       interval: {
         type: Number,
         default: 4000
+      }
+    },
+    mounted () {
+      setTimeout(() => {
+        this._setSliderWidth()
+        this._initSlider()
+      }, 20)
+    },
+    methods: {
+      _setSliderWidth () {
+        this.children = this.$refs.sliderGroup.children
+        let width = 0
+        let sliderWidth = this.$refs.slider.clientWidth
+        for (let i = 0; i < this.children.length; i++) {
+          let child = this.children[i]
+          addClass(child, 'slider-item')
+          console.log(child)
+          child.style.width = sliderWidth
+          width += sliderWidth + 'px'
+        }
+        if (this.loop) {
+          width += 2 * sliderWidth + 'px'
+        }
+        this.$refs.sliderGroup.style.width = width + 'px'
+      },
+      _initSlider () {
+        this.slider = new BScroll(this.$refs.slider, {
+          scrollX: true,
+          scrollY: false,
+          momentum: false,
+          snap: true,
+          snapLoop: this.loop,
+          snapThreshold: 0.3,
+          snapSpeed: 400
+        })
       }
     }
   }
@@ -46,8 +84,8 @@
           overflow: hidden
           text-decoration: none
         img
-        display: block
-        width: 100%
+          display: block
+          width: 100%
     .dots
       position: absolute
       right: 0
